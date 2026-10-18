@@ -634,13 +634,18 @@ mod teste_integracao {
         println!("status: ready={} versão={:?}", status.ready, status.version);
         assert!(status.ready);
 
-        for kind in [Kind::Video, Kind::Audio] {
+        for (kind, audio_format) in [
+            (Kind::Video, AudioFormat::Mp3),
+            (Kind::Audio, AudioFormat::Mp3),
+            (Kind::Audio, AudioFormat::M4a),
+        ] {
             let req = DownloadRequest {
-                id: format!("t-{kind:?}"),
+                id: format!("t-{kind:?}-{audio_format:?}"),
                 url: "https://youtu.be/x".into(),
                 kind,
                 quality: 720,
                 playlist: false,
+                audio_format,
                 start: Some("0:01".into()),
                 end: Some("0:03".into()),
             };
@@ -654,7 +659,7 @@ mod teste_integracao {
                 }
                 Ok(())
             });
-            let pasta = std::env::temp_dir().join("ytdlp-teste").join(format!("{kind:?}"));
+            let pasta = std::env::temp_dir().join("ytdlp-teste").join(&req.id);
             let _ = std::fs::remove_dir_all(&pasta);
             let (codigo, saida, erros) = motor.executar(a, Some(&pasta), Some(&req.id), Some(canal)).await.unwrap();
             let arquivos: Vec<_> = saida.lines().filter_map(args::arquivo_da_linha).collect();

@@ -38,7 +38,7 @@
 
   <div class="corpo">
     <div class="topo">
-      <span class="tipo" class:audio={tarefa.kind === "audio"}>{tarefa.kind === "video" ? `MP4 ${tarefa.quality}p` : "MP3"}</span>
+      <span class="tipo" class:audio={tarefa.kind === "audio"}>{tarefa.kind === "video" ? `MP4 ${tarefa.quality}p` : (tarefa.audioFormat ?? "mp3").toUpperCase()}</span>
       {#if tarefa.start || tarefa.end}<span class="tipo trecho">{tarefa.start || "0:00"}–{tarefa.end || "fim"}</span>{/if}
       <span class="estado">{rotulo[tarefa.estado]}</span>
     </div>

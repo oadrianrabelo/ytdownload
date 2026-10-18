@@ -1,5 +1,5 @@
 // Fila de downloads: no máximo 2 ao mesmo tempo, o resto espera.
-import { motor, mensagemDeErro, type Kind, type SavedFile } from "./api";
+import { motor, mensagemDeErro, type AudioFormat, type Kind, type SavedFile } from "./api";
 import { lerLinha } from "./progresso";
 
 export type Estado = "fila" | "baixando" | "convertendo" | "pronto" | "erro" | "cancelado";
@@ -10,6 +10,8 @@ export interface Tarefa {
   kind: Kind;
   quality: number;
   playlist: boolean;
+  /** Ausente em downloads salvos por versões antigas (= mp3). */
+  audioFormat?: AudioFormat;
   start: string | null;
   end: string | null;
   titulo: string;
@@ -92,6 +94,7 @@ class Fila {
           kind: tarefa.kind,
           quality: tarefa.quality,
           playlist: tarefa.playlist,
+          audioFormat: tarefa.audioFormat ?? "mp3",
           start: tarefa.start,
           end: tarefa.end,
         },

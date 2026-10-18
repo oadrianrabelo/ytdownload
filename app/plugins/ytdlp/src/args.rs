@@ -7,7 +7,7 @@
 use serde_json::Value;
 use url::Url;
 
-use crate::models::{DownloadRequest, Entry, Kind, MediaInfo, SavedFile};
+use crate::models::{AudioFormat, DownloadRequest, Entry, Kind, MediaInfo, SavedFile};
 use crate::{Error, Result};
 
 const DOMINIOS: &[&str] = &[
@@ -160,18 +160,13 @@ pub fn args_baixar(req: &DownloadRequest) -> Result<Vec<String>> {
             ]);
         }
         Kind::Audio => {
-            a.extend(
-                [
-                    "-f",
-                    "ba[acodec^=mp4a]/ba/b",
-                    "-x",
-                    "--audio-format",
-                    "mp3",
-                    "--audio-quality",
-                    "192K",
-                ]
-                .map(String::from),
-            );
+            let formato = match req.audio_format {
+                AudioFormat::Mp3 => ["--audio-format", "mp3", "--audio-quality", "192K"],
+                // O áudio AAC do YouTube só é copiado para o .m4a, sem recodificar.
+                AudioFormat::M4a => ["--audio-format", "m4a", "--audio-quality", "0"],
+            };
+            a.extend(["-f", "ba[acodec^=mp4a]/ba/b", "-x"].map(String::from));
+            a.extend(formato.map(String::from));
         }
     }
 
@@ -285,6 +280,7 @@ mod testes {
             kind,
             quality: 720,
             playlist: false,
+            audio_format: AudioFormat::Mp3,
             start: None,
             end: None,
         }
@@ -311,6 +307,16 @@ mod testes {
         let a = args_baixar(&pedido(Kind::Video)).unwrap();
         assert_eq!(a[a.len() - 2], "--");
         assert!(!a.iter().any(|x| x == "--exec"));
+    }
+
+    #[test]
+    fn audio_m4a_sem_conversao() {
+        let mut p = pedido(Kind::Audio);
+        p.audio_format = AudioFormat::M4a;
+        let a = args_baixar(&p).unwrap();
+        let i = a.iter().position(|x| x == "--audio-format").unwrap();
+        assert_eq!(a[i + 1], "m4a");
+        assert_eq!(args_baixar(&pedido(Kind::Audio)).unwrap()[i + 1], "mp3");
     }
 
     #[test]

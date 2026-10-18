@@ -9,6 +9,16 @@ pub enum Kind {
     Audio,
 }
 
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Deserialize, Serialize)]
+#[serde(rename_all = "lowercase")]
+pub enum AudioFormat {
+    /// Toca em tudo, mas precisa ser convertido (mais lento).
+    #[default]
+    Mp3,
+    /// AAC como o YouTube entrega: sem conversão, bem mais rápido.
+    M4a,
+}
+
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DownloadRequest {
@@ -21,6 +31,9 @@ pub struct DownloadRequest {
     /// Baixar a playlist inteira (quando o link tem uma).
     #[serde(default)]
     pub playlist: bool,
+    /// Formato do áudio (só quando `kind` é Audio).
+    #[serde(default)]
+    pub audio_format: AudioFormat,
     /// Trecho opcional: início e fim no formato 1:23 ou 1:02:03.
     pub start: Option<String>,
     pub end: Option<String>,

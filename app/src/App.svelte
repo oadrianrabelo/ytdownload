@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { motor, mensagemDeErro, extrairLink, tipoDeLink, type EngineStatus, type MediaInfo, type Kind } from "./lib/api";
+  import { motor, mensagemDeErro, extrairLink, tipoDeLink, type AudioFormat, type EngineStatus, type MediaInfo, type Kind } from "./lib/api";
   import { fila } from "./lib/fila.svelte";
   import { formatarDuracao } from "./lib/progresso";
   import ItemFila from "./lib/ItemFila.svelte";
@@ -54,6 +54,7 @@
   let entrada = $state("");
   let formato = $state<Formato>(lerPreferencia("formato", "video"));
   let qualidade = $state<number>(lerPreferencia("qualidade", 720));
+  let formatoAudio = $state<AudioFormat>(lerPreferencia("formatoAudio", "mp3"));
   let playlistInteira = $state(false);
   let cortar = $state(false);
   let inicio = $state("");
@@ -66,6 +67,8 @@
 
   $effect(() => salvarPreferencia("formato", formato));
   $effect(() => salvarPreferencia("qualidade", qualidade));
+  $effect(() => salvarPreferencia("formatoAudio", formatoAudio));
+  const nomeAudio = $derived(formatoAudio.toUpperCase());
 
   const link = $derived(extrairLink(entrada));
   const tipo = $derived(link ? tipoDeLink(link) : null);
@@ -116,6 +119,7 @@
         kind,
         quality: qualidade,
         playlist: ehPlaylist,
+        audioFormat: formatoAudio,
         start: cortar && !ehPlaylist ? inicio.trim() || null : null,
         end: cortar && !ehPlaylist ? fim.trim() || null : null,
         titulo: ehPlaylist && info ? `${titulo} (${info.entries.length} itens)` : titulo,
@@ -289,6 +293,15 @@
           <button role="radio" aria-checked={formato === "ambos"} class:ativo={formato === "ambos"} onclick={() => (formato = "ambos")}>Os dois</button>
         </div>
 
+        {#if formato !== "video"}
+          <label class="select">
+            Áudio
+            <select bind:value={formatoAudio}>
+              <option value="mp3">MP3 (toca em tudo)</option>
+              <option value="m4a">M4A (bem mais rápido)</option>
+            </select>
+          </label>
+        {/if}
         {#if formato !== "audio"}
           <label class="select">
             Qualidade
@@ -317,10 +330,14 @@
       {/if}
 
       <button class="primario grande" disabled={!link} onclick={baixar}>
-        <Icone nome="baixar" /> Baixar {formato === "ambos" ? "MP4 + MP3" : formato === "video" ? "MP4" : "MP3"}
+        <Icone nome="baixar" /> Baixar {formato === "ambos" ? `MP4 + ${nomeAudio}` : formato === "video" ? "MP4" : nomeAudio}
       </button>
       <p class="nota centro">
-        MP4 funciona em celular, TV e computador. MP3 é só o áudio, para som do carro e caixinhas.
+        {#if formato !== "video" && formatoAudio === "m4a"}
+          M4A sai quase tão rápido quanto o vídeo, mas som de carro e caixinhas antigas podem só aceitar MP3.
+        {:else}
+          MP4 funciona em celular, TV e computador. MP3 é só o áudio, para som do carro e caixinhas.
+        {/if}
       </p>
     </section>
   {/if}

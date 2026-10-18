@@ -2,6 +2,7 @@
 import { Channel, invoke } from "@tauri-apps/api/core";
 
 export type Kind = "video" | "audio";
+export type AudioFormat = "mp3" | "m4a";
 
 export interface EngineStatus {
   ready: boolean;
@@ -41,6 +42,7 @@ export interface DownloadRequest {
   kind: Kind;
   quality: number;
   playlist: boolean;
+  audioFormat: AudioFormat;
   start?: string | null;
   end?: string | null;
 }
