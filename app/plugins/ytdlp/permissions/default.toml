@@ -1,0 +1,16 @@
+[default]
+description = "Permite que o app use todos os comandos do motor de download."
+permissions = [
+    "allow-status",
+    "allow-prepare",
+    "allow-update",
+    "allow-inspect",
+    "allow-download",
+    "allow-cancel",
+    "allow-open-file",
+    "allow-reveal-file",
+    "allow-share-file",
+    "allow-open-output-dir",
+    "allow-choose-output-dir",
+    "allow-take-shared-url",
+]

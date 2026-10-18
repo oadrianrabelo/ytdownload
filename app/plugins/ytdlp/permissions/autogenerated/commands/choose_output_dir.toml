@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-choose-output-dir"
+description = "Enables the choose_output_dir command without any pre-configured scope."
+commands.allow = ["choose_output_dir"]
+
+[[permission]]
+identifier = "deny-choose-output-dir"
+description = "Denies the choose_output_dir command without any pre-configured scope."
+commands.deny = ["choose_output_dir"]

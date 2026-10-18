@@ -1,7 +1,13 @@
 # ytdownload
 
 Baixa vídeos e playlists do YouTube em **MP4 e MP3 ao mesmo tempo**, para assistir
-ou ouvir sem internet (feito pensando em vídeos e músicas infantis).
+ou ouvir sem internet.
+
+Este repositório tem duas formas de uso:
+
+- **App com interface (Android, Windows e Linux):** veja [`app/README.md`](app/README.md).
+  Baixe o APK/instalador na página [Releases](../../releases).
+- **Script em lista (este README):** cole vários links num arquivo e baixe tudo de uma vez.
 
 ## Como usar
 

@@ -1,0 +1,30 @@
+[package]
+name = "tauri-plugin-ytdlp"
+version = "0.1.0"
+authors = ["Adrian Rabelo"]
+description = "Motor de download (yt-dlp) do YTDownload, no desktop e no Android"
+edition = "2021"
+rust-version = "1.80"
+links = "tauri-plugin-ytdlp"
+
+[dependencies]
+tauri = { version = "2" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+url = "2"
+tokio = { version = "1", features = ["process", "io-util", "fs", "sync", "macros", "time"] }
+
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls-native-roots", "stream"] }
+futures-util = "0.3"
+sha2 = "0.10"
+zip = { version = "2", default-features = false, features = ["deflate"] }
+tauri-plugin-dialog = "2"
+tauri-plugin-opener = "2"
+
+[build-dependencies]
+tauri-plugin = { version = "2", features = ["build"] }
+
+[dev-dependencies]
+tauri = { version = "2", features = ["test"] }

@@ -1,0 +1,183 @@
+# Gera o app YTDownload: APK para Android e instaladores para Windows e Linux.
+#
+# - Cada push que mexe em app/ compila tudo (para conferir que nada quebrou);
+#   os arquivos ficam em "Artifacts" da execução.
+# - Para publicar uma versão na página "Releases" (fácil de baixar pelo celular):
+#   Actions > "App (Android + desktop)" > Run workflow, com "publicar" marcado.
+#
+# Assinatura do APK (opcional, mas recomendado): crie os secrets
+#   ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD e ANDROID_KEY_ALIAS
+# (veja app/README.md). Sem eles o APK é assinado com uma chave temporária e,
+# para instalar uma versão nova, é preciso desinstalar a anterior.
+name: App (Android + desktop)
+
+on:
+  push:
+    paths:
+      - "app/**"
+      - ".github/workflows/app.yml"
+  workflow_dispatch:
+    inputs:
+      publicar:
+        description: "Publicar em Releases"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: app-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android,armv7-linux-androideabi
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "app/src-tauri -> target"
+          key: android
+      - name: Dependências
+        run: npm ci
+      - name: Chave de assinatura
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: |
+          KS="$RUNNER_TEMP/ytdownload.jks"
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 -d > "$KS"
+            PASS="$KEYSTORE_PASSWORD"; ALIAS="$KEY_ALIAS"
+          else
+            echo "::warning::Sem os secrets de assinatura: usando chave temporária (para atualizar o app será preciso desinstalar antes)."
+            PASS="$(openssl rand -hex 16)"; ALIAS="ytdownload"
+            keytool -genkeypair -v -keystore "$KS" -alias "$ALIAS" -keyalg RSA -keysize 4096 \
+              -validity 10000 -storepass "$PASS" -keypass "$PASS" -dname "CN=YTDownload" >/dev/null
+          fi
+          echo "::add-mask::$PASS"
+          printf 'storeFile=%s\npassword=%s\nkeyAlias=%s\n' "$KS" "$PASS" "$ALIAS" > src-tauri/gen/android/keystore.properties
+      - name: Compilar APK
+        env:
+          NDK_HOME: ${{ env.ANDROID_NDK_LATEST_HOME }}
+        run: |
+          npx tauri android build --apk --split-per-abi --target aarch64 --target armv7 \
+            --config "{\"bundle\":{\"android\":{\"versionCode\":${{ github.run_number }}}}}"
+          mkdir -p ../saida
+          cp src-tauri/gen/android/app/build/outputs/apk/arm64/release/*.apk ../saida/YTDownload-android-arm64.apk
+          cp src-tauri/gen/android/app/build/outputs/apk/arm/release/*.apk ../saida/YTDownload-android-arm32.apk
+          ls -lh ../saida
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android
+          path: saida/*.apk
+          if-no-files-found: error
+
+  desktop:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            nome: windows
+          - os: ubuntu-22.04
+            nome: linux
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: app
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Bibliotecas do Linux
+        if: matrix.nome == 'linux'
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q libwebkit2gtk-4.1-dev librsvg2-dev libxdo-dev libssl-dev patchelf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "app/src-tauri -> target"
+          key: ${{ matrix.nome }}
+      - name: Dependências
+        run: npm ci
+      - name: Testes do motor
+        working-directory: app/plugins/ytdlp
+        run: cargo test
+      - name: Compilar
+        run: |
+          npx tauri build
+          mkdir -p ../saida
+          B=src-tauri/target/release/bundle
+          if [ "${{ matrix.nome }}" = windows ]; then
+            cp $B/nsis/*.exe ../saida/YTDownload-windows-instalador.exe
+          else
+            cp $B/appimage/*.AppImage ../saida/YTDownload-linux.AppImage
+            cp $B/deb/*.deb ../saida/YTDownload-linux.deb
+          fi
+          ls -lh ../saida
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.nome }}
+          path: saida/*
+          if-no-files-found: error
+
+  publicar:
+    if: github.event_name == 'workflow_dispatch' && inputs.publicar
+    needs: [android, desktop]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: saida
+          merge-multiple: true
+      - name: Criar release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          TAG="app-${{ github.run_number }}"
+          cat > notas.md <<'NOTAS'
+          ## Qual arquivo baixar?
+
+          | Aparelho | Arquivo |
+          |---|---|
+          | Celular Android (quase todos) | **YTDownload-android-arm64.apk** |
+          | Celular Android antigo (se o de cima não instalar) | YTDownload-android-arm32.apk |
+          | Windows | **YTDownload-windows-instalador.exe** |
+          | Linux | YTDownload-linux.AppImage ou .deb |
+
+          No Android, ao abrir o APK, permita "instalar apps desta fonte" quando o celular pedir.
+          NOTAS
+          gh release create "$TAG" saida/* --target "${{ github.sha }}" \
+            --title "YTDownload (versão ${{ github.run_number }})" --notes-file notas.md
