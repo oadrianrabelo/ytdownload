@@ -1,0 +1,13 @@
+# Cole aqui os links do YouTube, UM POR LINHA.
+# Linhas começando com # são ignoradas. Pode escrever um apelido depois do link.
+#
+# Vídeo solto:
+#   https://www.youtube.com/watch?v=XXXXXXXXXXX
+#   https://youtu.be/XXXXXXXXXXX   Música do sapo
+#
+# Playlist inteira (link com /playlist?list=...):
+#   https://www.youtube.com/playlist?list=PLxxxxxxxxxxxxxxxx
+#
+# Canal inteiro (cuidado: pode ser muita coisa):
+#   https://www.youtube.com/@NomeDoCanal/videos
+

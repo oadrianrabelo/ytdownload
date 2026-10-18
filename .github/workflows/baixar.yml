@@ -1,0 +1,58 @@
+# Baixa os links de links.txt na nuvem do GitHub, sem precisar do seu computador.
+# Como usar (dá para fazer pelo celular, no site do GitHub):
+#   1. Edite links.txt e salve (commit).
+#   2. Aba "Actions" > "Baixar vídeos" > "Run workflow".
+#   3. Ao terminar, abra a execução e baixe o arquivo em "Artifacts".
+# Atenção: o YouTube às vezes bloqueia servidores de nuvem ("confirme que não é um robô").
+# Se isso acontecer, rode no seu computador com baixar.bat / baixar.sh.
+name: Baixar vídeos
+
+on:
+  workflow_dispatch:
+    inputs:
+      formato:
+        description: "O que baixar"
+        type: choice
+        options: [ambos, mp4, mp3]
+        default: ambos
+      qualidade:
+        description: "Altura máxima do vídeo"
+        type: choice
+        options: ["720", "480", "1080", "360"]
+        default: "720"
+
+permissions:
+  contents: read
+
+jobs:
+  baixar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Instalar ffmpeg e dependências
+        run: |
+          sudo apt-get update -q && sudo apt-get install -y -q ffmpeg
+          python -m pip install -q -U -r requirements.txt
+      - name: Baixar
+        env:
+          FORMATO: ${{ inputs.formato }}
+          QUALIDADE: ${{ inputs.qualidade }}
+        run: python baixar.py --formato "$FORMATO" --qualidade "$QUALIDADE"
+      - name: Enviar arquivos
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: downloads
+          path: |
+            downloads/MP4
+            downloads/MP3
+            downloads/falhas.txt
+          if-no-files-found: warn
+          retention-days: 7
+          compression-level: 0

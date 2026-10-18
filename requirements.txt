@@ -1,0 +1,7 @@
+# yt-dlp: o melhor e mais mantido baixador do YouTube (atualizado com frequência
+# porque o YouTube muda sempre; os scripts baixar.bat/baixar.sh atualizam sozinhos).
+yt-dlp[default]>=2026.8.19
+# Interpretador JavaScript que o yt-dlp precisa para o YouTube.
+deno>=2.9.7,<3
+# ffmpeg empacotado, usado só se o computador não tiver ffmpeg instalado.
+static-ffmpeg==3.0
