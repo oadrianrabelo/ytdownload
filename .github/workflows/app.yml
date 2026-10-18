@@ -78,9 +78,8 @@ jobs:
           echo "::add-mask::$PASS"
           printf 'storeFile=%s\npassword=%s\nkeyAlias=%s\n' "$KS" "$PASS" "$ALIAS" > src-tauri/gen/android/keystore.properties
       - name: Compilar APK
-        env:
-          NDK_HOME: ${{ env.ANDROID_NDK_LATEST_HOME }}
         run: |
+          export NDK_HOME="$ANDROID_NDK_LATEST_HOME"
           npx tauri android build --apk --split-per-abi --target aarch64 --target armv7 \
             --config "{\"bundle\":{\"android\":{\"versionCode\":${{ github.run_number }}}}}"
           mkdir -p ../saida
@@ -129,7 +128,10 @@ jobs:
           key: ${{ matrix.nome }}
       - name: Dependências
         run: npm ci
+      # No Windows o executável de teste de um crate Tauri não abre sem o manifesto
+      # do app (STATUS_ENTRYPOINT_NOT_FOUND); a lógica testada é a mesma nas plataformas.
       - name: Testes do motor
+        if: matrix.nome == 'linux'
         working-directory: app/plugins/ytdlp
         run: cargo test
       - name: Compilar
