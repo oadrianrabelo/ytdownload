@@ -145,6 +145,10 @@ impl<R: Runtime> Ytdlp<R> {
         self.status().await
     }
 
+    pub fn read_clipboard(&self) -> Result<SharedUrl> {
+        Ok(self.0.run_mobile_plugin("readClipboard", Vazio {})?)
+    }
+
     pub fn take_shared_url(&self) -> Result<SharedUrl> {
         Ok(self.0.run_mobile_plugin("takeSharedUrl", Vazio {})?)
     }

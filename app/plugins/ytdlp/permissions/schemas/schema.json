@@ -379,6 +379,18 @@
           "markdownDescription": "Denies the prepare command without any pre-configured scope."
         },
         {
+          "description": "Enables the read_clipboard command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-read-clipboard",
+          "markdownDescription": "Enables the read_clipboard command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the read_clipboard command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-read-clipboard",
+          "markdownDescription": "Denies the read_clipboard command without any pre-configured scope."
+        },
+        {
           "description": "Enables the reveal_file command without any pre-configured scope.",
           "type": "string",
           "const": "allow-reveal-file",
@@ -439,10 +451,10 @@
           "markdownDescription": "Denies the update command without any pre-configured scope."
         },
         {
-          "description": "Permite que o app use todos os comandos do motor de download.\n#### This default permission set includes:\n\n- `allow-status`\n- `allow-prepare`\n- `allow-update`\n- `allow-inspect`\n- `allow-download`\n- `allow-cancel`\n- `allow-open-file`\n- `allow-reveal-file`\n- `allow-share-file`\n- `allow-open-output-dir`\n- `allow-choose-output-dir`\n- `allow-take-shared-url`",
+          "description": "Permite que o app use todos os comandos do motor de download.\n#### This default permission set includes:\n\n- `allow-status`\n- `allow-prepare`\n- `allow-update`\n- `allow-inspect`\n- `allow-download`\n- `allow-cancel`\n- `allow-open-file`\n- `allow-reveal-file`\n- `allow-share-file`\n- `allow-open-output-dir`\n- `allow-choose-output-dir`\n- `allow-take-shared-url`\n- `allow-read-clipboard`",
           "type": "string",
           "const": "default",
-          "markdownDescription": "Permite que o app use todos os comandos do motor de download.\n#### This default permission set includes:\n\n- `allow-status`\n- `allow-prepare`\n- `allow-update`\n- `allow-inspect`\n- `allow-download`\n- `allow-cancel`\n- `allow-open-file`\n- `allow-reveal-file`\n- `allow-share-file`\n- `allow-open-output-dir`\n- `allow-choose-output-dir`\n- `allow-take-shared-url`"
+          "markdownDescription": "Permite que o app use todos os comandos do motor de download.\n#### This default permission set includes:\n\n- `allow-status`\n- `allow-prepare`\n- `allow-update`\n- `allow-inspect`\n- `allow-download`\n- `allow-cancel`\n- `allow-open-file`\n- `allow-reveal-file`\n- `allow-share-file`\n- `allow-open-output-dir`\n- `allow-choose-output-dir`\n- `allow-take-shared-url`\n- `allow-read-clipboard`"
         }
       ]
     }

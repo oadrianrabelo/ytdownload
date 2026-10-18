@@ -16,6 +16,7 @@ Permite que o app use todos os comandos do motor de download.
 - `allow-open-output-dir`
 - `allow-choose-output-dir`
 - `allow-take-shared-url`
+- `allow-read-clipboard`
 
 ## Permission Table
 
@@ -204,6 +205,32 @@ Enables the prepare command without any pre-configured scope.
 <td>
 
 Denies the prepare command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`ytdlp:allow-read-clipboard`
+
+</td>
+<td>
+
+Enables the read_clipboard command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`ytdlp:deny-read-clipboard`
+
+</td>
+<td>
+
+Denies the read_clipboard command without any pre-configured scope.
 
 </td>
 </tr>

@@ -11,6 +11,7 @@ const COMMANDS: &[&str] = &[
     "open_output_dir",
     "choose_output_dir",
     "take_shared_url",
+    "read_clipboard",
 ];
 
 fn main() {

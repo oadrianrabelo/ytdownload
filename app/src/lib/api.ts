@@ -71,6 +71,7 @@ export const motor = {
   openOutputDir: () => cmd<void>("open_output_dir"),
   chooseOutputDir: () => cmd<EngineStatus>("choose_output_dir"),
   takeSharedUrl: () => cmd<{ url: string | null }>("take_shared_url"),
+  readClipboard: () => cmd<{ url: string | null }>("read_clipboard"),
 };
 
 export function mensagemDeErro(e: unknown): string {

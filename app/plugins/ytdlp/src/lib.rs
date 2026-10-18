@@ -47,6 +47,7 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
             commands::open_output_dir,
             commands::choose_output_dir,
             commands::take_shared_url,
+            commands::read_clipboard,
         ])
         .setup(|app, api| {
             #[cfg(mobile)]

@@ -13,4 +13,5 @@ permissions = [
     "allow-open-output-dir",
     "allow-choose-output-dir",
     "allow-take-shared-url",
+    "allow-read-clipboard",
 ]

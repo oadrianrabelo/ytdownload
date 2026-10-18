@@ -579,6 +579,11 @@ impl<R: Runtime> Ytdlp<R> {
     pub fn take_shared_url(&self) -> Result<SharedUrl> {
         Ok(SharedUrl::default())
     }
+
+    /// No computador a interface lê a área de transferência sozinha.
+    pub fn read_clipboard(&self) -> Result<SharedUrl> {
+        Ok(SharedUrl::default())
+    }
 }
 
 /// No Windows, impede que uma janela preta de terminal apareça.

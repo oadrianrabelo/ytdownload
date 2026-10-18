@@ -65,6 +65,11 @@ pub(crate) async fn choose_output_dir<R: Runtime>(app: AppHandle<R>) -> Result<E
 }
 
 #[command]
+pub(crate) async fn read_clipboard<R: Runtime>(app: AppHandle<R>) -> Result<SharedUrl> {
+    app.ytdlp().read_clipboard()
+}
+
+#[command]
 pub(crate) async fn take_shared_url<R: Runtime>(app: AppHandle<R>) -> Result<SharedUrl> {
     app.ytdlp().take_shared_url()
 }

@@ -2,6 +2,7 @@ package com.adrianrabelo.ytdlp
 
 import android.app.Activity
 import android.app.DownloadManager
+import android.content.ClipboardManager
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
@@ -92,6 +93,21 @@ class YtdlpPlugin(private val activity: Activity) : Plugin(activity) {
         r.put("url", linkCompartilhado)
         linkCompartilhado = null
         invoke.resolve(r)
+    }
+
+    @Command
+    fun readClipboard(invoke: Invoke) {
+        activity.runOnUiThread {
+            val r = JSObject()
+            try {
+                val cm = activity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                val texto = cm.primaryClip?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.coerceToText(activity)?.toString()
+                r.put("url", texto)
+            } catch (e: Exception) {
+                r.put("url", null as String?)
+            }
+            invoke.resolve(r)
+        }
     }
 
     // ---------- Motor ----------

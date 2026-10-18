@@ -97,7 +97,9 @@
 
   async function colar() {
     try {
-      const texto = await navigator.clipboard.readText();
+      // No Android a leitura é nativa (o WebView bloqueia navigator.clipboard).
+      const nativo = celular ? (await motor.readClipboard()).url : null;
+      const texto = nativo ?? (await navigator.clipboard.readText());
       if (texto) entrada = texto.trim();
     } catch {
       erroInfo = "Não consegui ler a área de transferência. Toque e segure no campo e escolha Colar.";
